@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ abbrev }} — HoopBase{% endblock %}
+{% block content %}
+<h1>{{ abbrev }}
+  <select onchange="location.href='/team/{{ abbrev }}?year='+this.value"
+    style="font-size:.9rem;background:var(--mid);border:1px solid #444;color:var(--light);border-radius:4px;padding:.3rem .6rem;margin-left:.75rem;">
+    {% for y in years %}
+    <option value="{{ y }}" {% if y==year_filter %}selected{% endif %}>{{ y }}-{{ y+1 }}</option>
+    {% endfor %}
+  </select>
+</h1>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+  <div>
+    <h2>Season History</h2>
+    <div class="card" style="padding:0;overflow:auto;max-height:480px;">
+      <table>
+        <thead><tr><th>Season</th><th>Total Pts</th><th>FG%</th><th>Games</th></tr></thead>
+        <tbody>
+          {% for s in seasons %}
+          <tr>
+            <td>{{ s.season_year }}-{{ s.season_year+1 }}</td>
+            <td>{{ s.total_pts }}</td>
+            <td>{{ s.fg_pct }}%</td>
+            <td>{{ s.games }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <h2>Top Players — {{ year_filter }}-{{ year_filter+1 }}</h2>
+    <div class="card" style="padding:0;overflow:auto;max-height:480px;">
+      <table>
+        <thead><tr><th>Player</th><th>Pts</th><th>FGA</th><th>FG%</th><th>G</th></tr></thead>
+        <tbody>
+          {% for p in top_players %}
+          <tr>
+            <td><a href="/player/{{ p.player }}">{{ p.player }}</a></td>
+            <td>{{ p.total_pts }}</td>
+            <td>{{ p.FGA }}</td>
+            <td>{{ p.FG_PCT }}%</td>
+            <td>{{ p.games_played }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

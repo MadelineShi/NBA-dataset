@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}{{ name }} — HoopBase{% endblock %}
+{% block head %}
+<style>
+  #court-wrap { position:relative; width:100%; max-width:500px; }
+  #court-wrap canvas { width:100%; border-radius:6px; display:block; }
+  .legend { display:flex; gap:1rem; font-size:.8rem; margin-top:.5rem; }
+  .dot { width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:4px; }
+</style>
+{% endblock %}
+{% block content %}
+<h1>{{ name }}</h1>
+
+{% if totals %}
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+  {% for label, val in [("Total Pts", totals.total_pts), ("FGA", totals.FGA),
+                        ("FG%", totals.FG_PCT), ("3P%", totals.THREE_PCT),
+                        ("Games", totals.games_played)] %}
+  <div class="card" style="flex:1;min-width:90px;text-align:center;padding:1rem;">
+    <div style="font-size:1.6rem;font-weight:800;color:var(--orange);">
+      {{ val if val is not none else '—' }}{% if "%" in label and val is not none %}%{% endif %}
+    </div>
+    <div style="font-size:.75rem;color:var(--muted);">{{ label }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Shot Chart -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+  <div>
+    <h2>Shot Chart
+      <select id="yearPicker" onchange="loadShots()"
+        style="font-size:.8rem;background:var(--mid);border:1px solid #444;color:var(--light);border-radius:4px;padding:.2rem .5rem;margin-left:.5rem;">
+        <option value="">All Seasons</option>
+        {% for y in years %}<option value="{{ y }}">{{ y }}-{{ y+1 }}</option>{% endfor %}
+      </select>
+    </h2>
+    <div id="court-wrap">
+      <canvas id="court" width="500" height="470"></canvas>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:#4caf50"></span>Made</span>
+      <span><span class="dot" style="background:#e53935;opacity:.7"></span>Missed</span>
+    </div>
+    <p id="shotCount" style="font-size:.8rem;color:var(--muted);margin-top:.4rem;"></p>
+  </div>
+
+  <!-- Season log -->
+  <div>
+    <h2>Season Log</h2>
+    <div class="card" style="padding:0;overflow:auto;max-height:460px;">
+      <table>
+        <thead><tr><th>Season</th><th>Team</th><th>Pts</th><th>FGA</th><th>FG%</th><th>3P%</th><th>G</th></tr></thead>
+        <tbody>
+          {% for s in career %}
+          <tr>
+            <td>{{ s.season_year }}</td>
+            <td><a href="/team/{{ s.team }}">{{ s.team }}</a></td>
+            <td>{{ s.total_pts }}</td>
+            <td>{{ s.FGA }}</td>
+            <td>{{ s.FG_PCT }}%</td>
+            <td>{{ s.THREE_PCT or '—' }}%</td>
+            <td>{{ s.games_played }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <a href="/compare?p1={{ name }}" class="btn" style="text-decoration:none;display:inline-block;margin-top:.75rem;">
+      Compare with another player →
+    </a>
+  </div>
+</div>
+
+<script>
+const PLAYER = {{ name | tojson }};
+
+// ── Draw NBA half-court ───────────────────────────────────────────
+function drawCourt(ctx, W, H) {
+  ctx.fillStyle = "#1a1a2e";
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#444";
+  ctx.lineWidth = 1.5;
+
+  const scaleX = W / 50;   // court is 50 ft wide in the data coords
+  const scaleY = H / 47;   // half court ~47 ft deep
+
+  function rect(x,y,w,h){ ctx.strokeRect(x*scaleX, y*scaleY, w*scaleX, h*scaleY); }
+  function arc(x,y,r,s,e,cc){ ctx.beginPath(); ctx.arc(x*scaleX,y*scaleY,r*scaleX,s,e,cc); ctx.stroke(); }
+
+  // Paint
+  ctx.fillStyle="#16213e";
+  ctx.fillRect(17*scaleX, 0, 16*scaleX, 19*scaleY);
+  ctx.strokeStyle="#f06620";
+  rect(17,0,16,19);
+
+  // Basket
+  ctx.strokeStyle="#aaa";
+  arc(25, 5.25, 0.75, 0, Math.PI*2);
+
+  // Backboard
+  ctx.beginPath();
+  ctx.moveTo(22*scaleX, 4*scaleY); ctx.lineTo(28*scaleX, 4*scaleY);
+  ctx.stroke();
+
+  // Free throw circle
+  ctx.strokeStyle="#444";
+  arc(25, 19, 6, 0, Math.PI*2);
+
+  // Three-point arc
+  ctx.beginPath();
+  ctx.moveTo(3*scaleX, 0); ctx.lineTo(3*scaleX, 14*scaleY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(47*scaleX, 0); ctx.lineTo(47*scaleX, 14*scaleY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(25*scaleX, 5.25*scaleY, 23.75*scaleX, Math.PI+0.39, -0.39);
+  ctx.stroke();
+
+  // Half-court line
+  ctx.beginPath();
+  ctx.moveTo(0, H); ctx.lineTo(W, H);
+  ctx.stroke();
+}
+
+function plotShots(shots) {
+  const canvas = document.getElementById("court");
+  const W = canvas.width, H = canvas.height;
+  const ctx = canvas.getContext("2d");
+
+  drawCourt(ctx, W, H);
+
+  const scaleX = W / 50;
+  const scaleY = H / 47;
+
+  shots.forEach(s => {
+    const x = s.shotX * scaleX;
+    const y = s.shotY * scaleY;
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI*2);
+    ctx.fillStyle = s.made ? "rgba(76,175,80,0.75)" : "rgba(229,57,53,0.55)";
+    ctx.fill();
+  });
+
+  const made = shots.filter(s=>s.made).length;
+  document.getElementById("shotCount").textContent =
+    `${shots.length} shots shown · ${made} made (${shots.length ? Math.round(made/shots.length*100) : 0}% FG)`;
+}
+
+function loadShots() {
+  const year = document.getElementById("yearPicker").value;
+  const url  = `/api/shots/${encodeURIComponent(PLAYER)}` + (year ? `?year=${year}` : "");
+  fetch(url)
+    .then(r => r.json())
+    .then(data => plotShots(data))
+    .catch(err => console.error(err));
+}
+
+loadShots();
+</script>
+{% endblock %}
