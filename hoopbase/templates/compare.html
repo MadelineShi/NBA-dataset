@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Compare — HoopBase{% endblock %}
+{% block content %}
+<h1>Player Comparison</h1>
+
+<div class="filter-bar">
+  <div>
+    <label>Player 1</label>
+    <input list="plist" id="sp1" value="{{ p1_name }}" placeholder="Type a name…" style="min-width:200px;">
+  </div>
+  <div>
+    <label>Player 2</label>
+    <input list="plist" id="sp2" value="{{ p2_name }}" placeholder="Type a name…" style="min-width:200px;">
+  </div>
+  <button class="btn" onclick="doCompare()">Compare</button>
+</div>
+
+<datalist id="plist">
+  {% for p in all_players %}<option value="{{ p.player }}">{% endfor %}
+</datalist>
+
+{% if p1_stats and p2_stats %}
+<div class="card" style="padding:0;overflow:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Stat</th>
+        <th>{{ p1_name }}</th>
+        <th>{{ p2_name }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set stats = [
+        ("Total Points", p1_stats.total_pts, p2_stats.total_pts),
+        ("FGA",          p1_stats.FGA,       p2_stats.FGA),
+        ("FGM",          p1_stats.FGM,       p2_stats.FGM),
+        ("FG%",          p1_stats.FG_PCT,    p2_stats.FG_PCT),
+        ("3P%",          p1_stats.THREE_PCT, p2_stats.THREE_PCT),
+        ("Games",        p1_stats.games_played, p2_stats.games_played),
+      ] %}
+      {% for label, v1, v2 in stats %}
+      <tr>
+        <td style="color:var(--muted);font-size:.8rem;">{{ label }}</td>
+        <td class="{{ 'win' if v1 and v2 and v1 >= v2 else 'lose' }}">{{ v1 if v1 is not none else '—' }}{% if "%" in label and v1 is not none %}%{% endif %}</td>
+        <td class="{{ 'win' if v1 and v2 and v2 > v1 else 'lose' }}">{{ v2 if v2 is not none else '—' }}{% if "%" in label and v2 is not none %}%{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;">
+  <a href="/player/{{ p1_name }}" class="btn" style="text-decoration:none;">{{ p1_name }} full profile →</a>
+  <a href="/player/{{ p2_name }}" class="btn" style="text-decoration:none;">{{ p2_name }} full profile →</a>
+</div>
+{% endif %}
+
+<script>
+function doCompare(){
+  const p1=document.getElementById("sp1").value.trim(), p2=document.getElementById("sp2").value.trim();
+  if(p1&&p2) location.href=`/compare?p1=${encodeURIComponent(p1)}&p2=${encodeURIComponent(p2)}`;
+}
+</script>
+{% endblock %}
