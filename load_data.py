@@ -24,7 +24,7 @@ from mysql.connector import Error
 DB_CONFIG = {
     "host":     "localhost",
     "user":     "root",
-    "password": "gha$bbhisA23rtyuiop0999",   # ← update this
+    "password": "phsj7655",   # ← update this
     "database": "hoopbase",
 }
 

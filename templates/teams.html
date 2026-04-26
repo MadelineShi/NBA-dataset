@@ -1,21 +1,51 @@
 {% extends "base.html" %}
 {% block title %}Teams — HoopBase{% endblock %}
+
 {% block content %}
-<h1>All Teams</h1>
-<div class="card" style="padding:0;overflow:auto;">
-  <table>
-    <thead><tr><th>Team</th><th>Total Pts</th><th>FG%</th><th>Total Shots</th><th>Games</th></tr></thead>
-    <tbody>
-      {% for t in teams %}
-      <tr>
-        <td><a href="/team/{{ t.team }}">{{ t.team }}</a></td>
-        <td>{{ t.total_pts }}</td>
-        <td>{{ t.fg_pct }}%</td>
-        <td>{{ t.total_shots }}</td>
-        <td>{{ t.games }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+<div class="compare-container">
+
+<h1 style="font-size:42px;margin-bottom:25px;">All Teams</h1>
+
+<!-- ⭐ 卡片表格 -->
+<div class="card-box">
+
+  <div class="row header">
+    <div>Team</div>
+    <div>Total Pts</div>
+    <div>FG%</div>
+    <div>Shots</div>
+    <div>Games</div>
+  </div>
+
+  {% for t in teams %}
+  <div class="row">
+    <div><a href="/team/{{ t.team }}">{{ t.team }}</a></div>
+    <div>{{ t.total_pts }}</div>
+    <div>{{ t.fg_pct }}%</div>
+    <div>{{ t.total_shots }}</div>
+    <div>{{ t.games }}</div>
+  </div>
+  {% endfor %}
+
 </div>
+
+<!-- ⭐ 图表（简单柱状） -->
+<div class="card-box" style="max-width:700px;margin-top:30px;">
+
+<h3 style="margin-bottom:20px;">FG% Overview</h3>
+
+{% for t in teams %}
+<div class="bar-group">
+  <span>{{ t.team }}</span>
+  <div class="bars">
+    <div class="bar left" style="width: {{ t.fg_pct }}%"></div>
+  </div>
+</div>
+{% endfor %}
+
+</div>
+
+</div>
+
 {% endblock %}

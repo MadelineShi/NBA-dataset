@@ -11,7 +11,7 @@ import mysql.connector
 DB_CONFIG = {
     "host":     "localhost",
     "user":     "root",
-    "password": "gha$bbhisA23rtyuiop0999",   # ← update this
+    "password": "phsj7655",   # ← update this
     "database": "hoopbase",
 }
 
@@ -23,6 +23,22 @@ def get_db():
 print("Connecting...")
 conn = get_db()
 cur  = conn.cursor()
+
+cur.execute("""
+CREATE TABLE IF NOT EXISTS player_career_stats (
+    player VARCHAR(100),
+    team VARCHAR(5),
+    total_pts INT,
+    FGA INT,
+    FGM INT,
+    FG_PCT FLOAT,
+    TPA INT,
+    TPM INT,
+    THREE_PCT FLOAT,
+    games_played INT,
+    PRIMARY KEY (player)
+)
+""")
 
 # Step 1 — clear the table
 print("Clearing old stats...")
