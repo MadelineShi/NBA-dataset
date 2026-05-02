@@ -58,7 +58,7 @@ def parse_match_id(match_id):
         season_year = game_date.year if game_date.month >= 10 else game_date.year - 1
         return game_date, home_team, season_year
     except Exception:
-        return None, match_id[-3:], None
+        return None, game_id[-3:], None
 
 
 def load_all(conn):
@@ -91,21 +91,22 @@ def load_all(conn):
         drop_cols = [c for c in df.columns if c.startswith("Unnamed")]
         df = df.drop(columns=drop_cols)
 
-        if "match_id" not in df.columns or df.empty:
+        if "game_id" not in df.columns or df.empty: #这里要怎么改？
             files_skipped += 1
             continue
 
-        # ── one match_id per file ─────────────────────────────────────────
-        match_id  = str(df["match_id"].iloc[0])
-        game_date, home_team, season_year = parse_match_id(match_id)
+        # ── one game_id per file ─────────────────────────────────────────
+        game_id = str(df.get("game_id", df.get("match_id")).iloc[0])
+        game_date, home_team, season_year = parse_game_id(game_id)
+        opponent_team = str(df["opp"].iloc[0]).replace("'", "")
 
         # Insert game row (IGNORE if already loaded — safe to re-run)
         cursor.execute(
-            """INSERT IGNORE INTO games (match_id, game_date, home_team, season_year)
-               VALUES (%s, %s, %s, %s)""",
-            (match_id, game_date, home_team, season_year)
+            """INSERT IGNORE INTO Game (game_id, game_date, season_year, home_team, opponent_team)
+               VALUES (%s, %s, %s, %s, %s)""",
+            (game_id, game_date, season_year, home_team, opponent_team)
         )
-        games_inserted += cursor.rowcount
+        games_inserted += cursor.rowcount #这儿的games要改吗
 
         # ── prepare shot rows ─────────────────────────────────────────────
         # Normalise column names (lowercase, strip spaces)
@@ -124,10 +125,28 @@ def load_all(conn):
         }
 
         shot_rows = []
+        player_cache = {} # NEW: added a cache to save time
         for _, row in df.iterrows():
+
+            player_name = str(row.get("player", "")).strip()
+
+            # using cache to avoid repeated visit to database
+            if player_name not in player_cache:
+                cursor.execute(
+                    "INSERT IGNORE INTO Player (player_name) VALUES (%s)",
+                    (player_name,)
+                )
+                cursor.execute(
+                    "SELECT player_id FROM Player WHERE player_name = %s",
+                    (player_name,)
+                )
+                player_cache[player_name] = cursor.fetchone()[0]
+
+            player_id = player_cache[player_name]
+            
             shot_rows.append((
-                match_id,
-                str(row.get("player", "")).strip(),
+                game_id,
+                player_id,
                 str(row.get("team",   "")).strip().upper(),
                 str(row.get("shot_type", "")).strip(),
                 1 if str(row.get("made", "False")).lower() in ("true", "1", "yes") else 0,
@@ -142,8 +161,8 @@ def load_all(conn):
         for start in range(0, len(shot_rows), BATCH_SIZE):
             batch = shot_rows[start:start + BATCH_SIZE]
             cursor.executemany(
-                """INSERT INTO shots
-                       (match_id, player, team, shot_type, made,
+                """INSERT INTO Shot
+                       (game_id, player_id, team_name, shot_type, made,
                         distance, shotX, shotY, quarter, time_remaining)
                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                 batch
