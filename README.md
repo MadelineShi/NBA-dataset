@@ -22,7 +22,7 @@ hoopbase/
     ├── base.html
     ├── home.html
     ├── search.html
-    ├── player.html       ← includes interactive shot chart
+    ├── player.html     ← includes interactive shot chart
     ├── compare.html
     ├── teams.html
     ├── team.html
@@ -71,7 +71,6 @@ This creates:
 - team_career_stats (per team totals)
 
 All stats (FG%, points, 3P%) are computed dynamically using SQL views over the Shot table.
-
 
 ### 7. Run the site
 ```
