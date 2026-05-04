@@ -2,8 +2,8 @@
 -- CSC 353 — Database Systems, Davidson College Spring 2026
 -- Built from per-game shot log CSVs (2000–present)
 
-CREATE DATABASE IF NOT EXISTS hoopbase;
-USE hoopbase;
+CREATE DATABASE IF NOT EXISTS hoopbase2;
+USE hoopbase2;
 
 -- ─────────────────────────────────────────
 -- 1. Game  (one row per game_id)
@@ -16,9 +16,9 @@ CREATE TABLE IF NOT EXISTS Game (
     opponent_team  VARCHAR(3),				 -- read from "opp"
     FOREIGN KEY (home_team) REFERENCES Team(team_name),
 	FOREIGN KEY (opponent_team) REFERENCES Team(team_name),
-	INDEX idx_game_date (game_date),     	 --这三个是啥啊
-    INDEX idx_game_team (home_team),	  	 --这三个是啥啊
-    INDEX idx_game_year (season_year)	 	 --这三个是啥啊
+	INDEX idx_game_date (game_date),     	 -- 这三个是啥啊
+    INDEX idx_game_team (home_team),	  	 -- 这三个是啥啊
+    INDEX idx_game_year (season_year)	 	 -- 这三个是啥啊
 );
 
 -- ─────────────────────────────────────────
