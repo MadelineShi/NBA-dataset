@@ -1,0 +1,76 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="NBA ER (Chen Style)" id="0">
+    <mxGraphModel dx="1168" dy="763" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="YTenSMcBtFoAvEcohlZ_-3" edge="1" parent="1" source="player" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="belongs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;shadow=0;" value="Player&lt;br&gt;Primary key: player_name VARCHAR(100)&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Attribute:&lt;/div&gt;&lt;div&gt;player_id INT AUTO_INCREMENT(4)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="220" x="80" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="team" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc" value="Team&lt;br&gt;Primary key: team_name CHAR(3)" vertex="1">
+          <mxGeometry height="120" width="220" x="810" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="game" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc" value="Game&lt;br&gt;Primary key: game_id CHAR(16)&lt;br&gt;&lt;br&gt;Attributes:&lt;br&gt;game_date DATE&lt;br&gt;season_year INT&lt;div&gt;home_team&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;CHAR(3)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;opponent_team CHAR(3)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="260" x="430" y="690" as="geometry" />
+        </mxCell>
+        <mxCell id="YTenSMcBtFoAvEcohlZ_-17" edge="1" parent="1" source="shot" style="edgeStyle=none;shape=link;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="contains">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="shot" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc" value="Shot&lt;br&gt;Primary key: shot_id BIGINT&lt;br&gt;&lt;br&gt;Attributes:&lt;br&gt;shot_type CHAR(1)&lt;br&gt;made BOOLEAN&lt;br&gt;distance FLOAT&lt;br&gt;shotX FLOAT&lt;br&gt;shotY FLOAT&lt;br&gt;quarter CHAR(4)&lt;br&gt;time_remaining INT(2)" vertex="1">
+          <mxGeometry height="200" width="280" x="420" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="takes" parent="1" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc" value="takes" vertex="1">
+          <mxGeometry height="70" width="100" x="260" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="contains" parent="1" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc" value="contains" vertex="1">
+          <mxGeometry height="70" width="110" x="505" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="plays" parent="1" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc" value="plays_in" vertex="1">
+          <mxGeometry height="110" width="170" x="760" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="belongs" parent="1" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc" value="belongs_to&#xa;(season_year)" vertex="1">
+          <mxGeometry height="80" width="150" x="480" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="YTenSMcBtFoAvEcohlZ_-4" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="630" y="179.41" as="sourcePoint" />
+            <mxPoint x="810" y="179.41" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="YTenSMcBtFoAvEcohlZ_-7" edge="1" parent="1" source="takes" style="endArrow=classic;html=1;rounded=0;exitX=0.244;exitY=0.212;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="240" y="290" as="sourcePoint" />
+            <mxPoint x="190" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="YTenSMcBtFoAvEcohlZ_-15" edge="1" parent="1" source="game" style="edgeStyle=none;shape=link;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.265;entryY=0.75;entryDx=0;entryDy=0;entryPerimeter=0;" target="plays">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="YTenSMcBtFoAvEcohlZ_-18" edge="1" parent="1" source="shot" style="edgeStyle=none;shape=link;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.758;entryY=0.762;entryDx=0;entryDy=0;entryPerimeter=0;" target="takes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vQKolzlOMPiLURks50x--1" edge="1" parent="1" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="559.7099999999999" y="610" as="sourcePoint" />
+            <mxPoint x="560.3" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vQKolzlOMPiLURks50x--2" edge="1" parent="1" source="plays" style="edgeStyle=none;shape=link;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="team">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="840" y="418.5" as="sourcePoint" />
+            <mxPoint x="1085" y="231.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vQKolzlOMPiLURks50x--3" edge="1" parent="1" source="contains" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.438;exitY=0.922;exitDx=0;exitDy=0;exitPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="554.38" y="610" as="sourcePoint" />
+            <mxPoint x="554.97" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
