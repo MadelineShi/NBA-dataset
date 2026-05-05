@@ -1,29 +1,64 @@
 {% extends "base.html" %}
 {% block title %}Leaderboards — HoopBase{% endblock %}
+
 {% block content %}
-<h1>All-Time Leaderboards</h1>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
-  {% for category, rows in boards.items() %}
-  <div>
-    <h2>{{ category }}</h2>
-    <div class="card" style="padding:0;">
-      <table>
-        <thead><tr><th>#</th><th>Player</th><th>Team</th><th>Value</th></tr></thead>
-        <tbody>
-          {% for r in rows %}
-          <tr>
-            <td style="color:var(--muted);">{{ loop.index }}</td>
-            <td><a href="/player/{{ r.player }}">{{ r.player }}</a></td>
-            <td><a href="/team/{{ r.team }}">{{ r.team }}</a></td>
-            <td style="font-weight:700;color:var(--orange);">
-              {{ r.val }}{% if "%" in category %}%{% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="mb-10 text-center md:text-left">
+    <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">All-Time Leaderboards</h1>
+    <p class="mt-2 text-lg text-gray-500 font-medium">The statistical gold standard of the HoopBase era.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+  {% if boards %}
+    {% for category, rows in boards.items() %}
+    <div class="flex flex-col">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-3">
+        <span class="w-1.5 h-7 bg-brand rounded-full"></span>
+        {{ category }}
+      </h2>
+      
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition-all hover:shadow-md">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead class="bg-gray-50/80 text-gray-500 uppercase text-xs font-bold tracking-widest border-b border-gray-100">
+            <tr>
+              <th class="px-5 py-4 w-16 text-center">Rank</th>
+              <th class="px-4 py-4">Player</th>
+              <th class="px-5 py-4 text-right">Value</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            {% for r in rows %}
+            <tr class="hover:bg-orange-50/30 transition-colors group">
+              <td class="px-5 py-4 text-center text-gray-400 font-mono font-medium italic group-hover:text-brand">
+                {{ loop.index }}
+              </td>
+              <td class="px-4 py-4">
+                <a href="/player/{{ r.player_name }}" class="text-blue-600 font-semibold hover:text-blue-800 hover:underline transition">
+                  {{ r.player_name }}
+                </a>
+              </td>
+              <td class="px-5 py-4 text-right font-black text-gray-900">
+                {# Defensive Check: Check if 'val' exists before formatting #}
+                {% if r.val is defined and r.val is not none %}
+                    {% if "%" in category %}
+                        {{ r.val }}%
+                    {% else %}
+                        {{ "{:,}".format(r.val) }}
+                    {% endif %}
+                {% else %}
+                    <span class="text-gray-300">N/A</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  {% endfor %}
+    {% endfor %}
+  {% else %}
+    <div class="col-span-full py-20 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+        <p class="text-gray-400 font-medium">No leaderboard data found.</p>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

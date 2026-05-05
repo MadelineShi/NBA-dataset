@@ -1,21 +1,51 @@
 {% extends "base.html" %}
 {% block title %}Teams — HoopBase{% endblock %}
+
 {% block content %}
-<h1>All Teams</h1>
-<div class="card" style="padding:0;overflow:auto;">
-  <table>
-    <thead><tr><th>Team</th><th>Total Pts</th><th>FG%</th><th>Total Shots</th><th>Games</th></tr></thead>
+
+<div class="compare-container">
+
+<h1 style="font-size:42px;margin-bottom:25px;">All Teams</h1>
+
+<div class="card-box">
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:2px solid #ddd;text-align:left;">
+        <th style="padding:10px 15px;">Team</th>
+        <th style="padding:10px 15px;">Total Pts</th>
+        <th style="padding:10px 15px;">FG%</th>
+        <th style="padding:10px 15px;">Shots</th>
+        <th style="padding:10px 15px;">Games</th>
+      </tr>
+    </thead>
     <tbody>
       {% for t in teams %}
-      <tr>
-        <td><a href="/team/{{ t.team }}">{{ t.team }}</a></td>
-        <td>{{ t.total_pts }}</td>
-        <td>{{ t.fg_pct }}%</td>
-        <td>{{ t.total_shots }}</td>
-        <td>{{ t.games }}</td>
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:10px 15px;">{{ t.team_name }}</td>
+        <td style="padding:10px 15px;">{{ t.total_pts }}</td>
+        <td style="padding:10px 15px;">{{ t.FG_PCT }}%</td>
+        <td style="padding:10px 15px;">{{ t.FGA }}</td>
+        <td style="padding:10px 15px;">{{ t.games }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+
+<!-- FG% Bar Chart -->
+<div class="card-box" style="max-width:700px;margin-top:30px;">
+  <h3 style="margin-bottom:20px;">FG% Overview</h3>
+  {% for t in teams %}
+  <div class="bar-group">
+    <span>{{ t.team_name }}</span>
+    <div class="bars">
+      <div class="bar left" style="width: {{ t.FG_PCT }}%"></div>
+    </div>
+    <span style="font-size:12px;color:#666;">{{ t.FG_PCT }}%</span>
+  </div>
+  {% endfor %}
+</div>
+
+</div>
+
 {% endblock %}

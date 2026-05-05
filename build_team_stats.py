@@ -8,7 +8,7 @@ import mysql.connector
 DB_CONFIG = {
     "host":     "localhost",
     "user":     "root",
-    "password": "gha$bbhisA23rtyuiop0999",   # ← update this
+    "password": "phsj7655",   # ← update this
     "database": "hoopbase",
 }
 
@@ -47,7 +47,7 @@ for i, team in enumerate(teams, 1):
                      WHEN shot_type='3-pointer' AND made=1 THEN 3 ELSE 0 END),
             COUNT(*),
             ROUND(SUM(made)/COUNT(*)*100, 1),
-            COUNT(DISTINCT match_id)
+            COUNT(DISTINCT game_id)
         FROM shots WHERE team = %s
     """, (team, team))
     row = c2.fetchone()

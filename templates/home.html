@@ -1,37 +1,47 @@
 {% extends "base.html" %}
+
 {% block title %}HoopBase{% endblock %}
+
 {% block content %}
-<h1>HoopBase <span style="color:var(--muted);font-weight:400;font-size:1rem">NBA Shot Analytics</span></h1>
 
-<div class="card" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
-  <input id="qs" type="text" placeholder="Search a player…"
-    style="flex:1;min-width:200px;font-size:1rem;padding:.6rem 1rem;background:#0d0d1f;border:1px solid #444;color:#e0e0e0;border-radius:6px;">
-  <button class="btn" onclick="location.href='/search?q='+encodeURIComponent(document.getElementById('qs').value)">Search</button>
-  <a href="/compare" class="btn" style="text-decoration:none">Compare Players</a>
+<!-- ===== HERO TEXT（上半部分） ===== -->
+<div class="hero-text">
+
+  <h1>
+    Explore NBA Data<br>
+    <span class="indent">As You Want</span>
+  </h1>
+
+  <p>
+    This database includes NBA shot data from 2000–present.
+    Analyze players, compare stats, and discover trends.
+  </p>
+
 </div>
 
-<h2>Top Scorers — {{ latest_year }}-{{ latest_year + 1 }} Season</h2>
-<div class="card" style="padding:0;overflow:hidden;">
-  <table>
-    <thead><tr><th>#</th><th>Player</th><th>Team</th><th>Total Pts</th><th>FGA</th><th>FG%</th><th>3P%</th><th>Games</th></tr></thead>
-    <tbody>
-      {% for p in top %}
-      <tr>
-        <td>{{ loop.index }}</td>
-        <td><a href="/player/{{ p.player }}">{{ p.player }}</a></td>
-        <td><a href="/team/{{ p.team }}">{{ p.team }}</a></td>
-        <td>{{ p.total_pts }}</td>
-        <td>{{ p.FGA }}</td>
-        <td>{{ p.FG_PCT }}%</td>
-        <td>{{ p.THREE_PCT or '—' }}%</td>
-        <td>{{ p.games_played }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<!-- ===== 图片区域（占满宽度） ===== -->
+<div class="card-grid-full">
+
+  <a href="{{ url_for('search') }}" class="img-card">
+    <img src="{{ url_for('static', filename='basepicture.png') }}">
+    <div class="overlay">See Top Players</div>
+  </a>
+
+  <a href="{{ url_for('teams') }}" class="img-card">
+    <img src="{{ url_for('static', filename='basepicture2.png') }}">
+    <div class="overlay">Explore Teams</div>
+  </a>
+
+  <a href="{{ url_for('leaderboards') }}" class="img-card">
+    <img src="{{ url_for('static', filename='basepicture3.png') }}">
+    <div class="overlay">Best This Year</div>
+  </a>
+
+  <a href="{{ url_for('compare') }}" class="img-card">
+    <img src="{{ url_for('static', filename='basepicture4.png') }}">
+    <div class="overlay">Compare Players</div>
+  </a>
+
 </div>
 
-<script>
-document.getElementById("qs").addEventListener("keydown", e => { if(e.key==="Enter") location.href='/search?q='+encodeURIComponent(e.target.value); });
-</script>
 {% endblock %}

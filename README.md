@@ -49,12 +49,8 @@ In both `load_data.py` and `app.py`, find:
 ```
 Replace with your actual MySQL password.
 
-### 4. NBA Dataset
-
-## Data
-The dataset is hosted on Kaggle. Download it here:
-[NBA Dataset on Kaggle]: https://www.kaggle.com/datasets/techbaron13/nba-shots-dataset-2001-present
-Once downloaded, place the folder in the root of the project as `/data`. Please make sure to make this folder. 
+### 4. Put your CSVs in the data/ folder
+Create a folder called `data` inside your project folder and drop all 4000+ CSV files in there.
 
 ### 5. Load the data
 ```
