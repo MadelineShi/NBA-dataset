@@ -20,30 +20,32 @@ SELECT
 
     COUNT(*) AS FGA,
     SUM(s.made) AS FGM,
-    ROUND(SUM(s.made)/COUNT(*)*100,1) AS FG_PCT,
+    ROUND(SUM(s.made) / NULLIF(COUNT(*), 0) * 100, 1) AS FG_PCT,
 
     SUM(CASE WHEN s.shot_type = '3' THEN 1 ELSE 0 END) AS TPA,
     SUM(CASE WHEN s.shot_type = '3' AND s.made = 1 THEN 1 ELSE 0 END) AS TPM,
 
     ROUND(
         SUM(CASE WHEN s.shot_type = '3' AND s.made = 1 THEN 1 ELSE 0 END)
-        / NULLIF(SUM(CASE WHEN s.shot_type = '3' THEN 1 ELSE 0 END),0) * 100, 1
+        / NULLIF(SUM(CASE WHEN s.shot_type = '3' THEN 1 ELSE 0 END), 0)
+        * 100, 1
     ) AS THREE_PCT,
 
     SUM(
         CASE
-            WHEN s.shot_type = '2' AND s.made = 1 THEN 2
             WHEN s.shot_type = '3' AND s.made = 1 THEN 3
+            WHEN s.shot_type = '2' AND s.made = 1 THEN 2
             ELSE 0
         END
     ) AS total_pts,
 
     COUNT(DISTINCT s.game_id) AS games_played
 
-FROM Shot s
+FROM Shot s FORCE INDEX (idx_shot_player)
 JOIN Player p ON s.player_id = p.player_id
+GROUP BY s.player_id, p.player_name, s.team_name;
 
-GROUP BY p.player_name, s.team_name;
+
 
 
 -- ─────────────────────────────────────────
@@ -57,24 +59,30 @@ GROUP BY p.player_name, s.team_name;
 
 CREATE OR REPLACE VIEW team_career_stats AS
 SELECT
-    team_name,
+    s.team_name,
 
     COUNT(*) AS FGA,
-    SUM(CASE WHEN made = 1 THEN 1 ELSE 0 END) AS FGM,
+    SUM(CASE WHEN s.made = 1 THEN 1 ELSE 0 END) AS FGM,
 
     ROUND(
-        SUM(CASE WHEN made = 1 THEN 1 ELSE 0 END) / COUNT(*),
-        3
+        SUM(CASE WHEN s.made = 1 THEN 1 ELSE 0 END)
+        / NULLIF(COUNT(*), 0)
+        * 100, 1
     ) AS FG_PCT,
 
     SUM(
         CASE
-            WHEN shot_type = '3' AND made = 1 THEN 3
-            WHEN made = 1 THEN 2
+            WHEN s.shot_type = '3' AND s.made = 1 THEN 3
+            WHEN s.shot_type = '2' AND s.made = 1 THEN 2
             ELSE 0
         END
-    ) AS total_pts
+    ) AS total_pts,
 
-FROM Shot
+    COUNT(DISTINCT s.game_id) AS games
 
-GROUP BY team_name;
+FROM Shot s FORCE INDEX (idx_shot_team)
+GROUP BY s.team_name;
+
+
+
+
