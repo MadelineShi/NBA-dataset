@@ -1,64 +1,178 @@
 {% extends "base.html" %}
 {% block title %}Compare — HoopBase{% endblock %}
-{% block content %}
-<h1>Player Comparison</h1>
 
-<div class="filter-bar">
-  <div>
-    <label>Player 1</label>
-    <input list="plist" id="sp1" value="{{ p1_name }}" placeholder="Type a name…" style="min-width:200px;">
-  </div>
-  <div>
-    <label>Player 2</label>
-    <input list="plist" id="sp2" value="{{ p2_name }}" placeholder="Type a name…" style="min-width:200px;">
-  </div>
-  <button class="btn" onclick="doCompare()">Compare</button>
+{% block content %}
+
+<div class="compare-container compare-page">
+
+<h1 style="font-size:44px;margin-bottom:20px;">Player Comparison</h1>
+
+<!-- 输入 -->
+<div class="compare-input" style="margin-bottom:30px;">
+  <input list="plist" id="sp1" value="{{ p1_name }}" placeholder="Player 1">
+  <input list="plist" id="sp2" value="{{ p2_name }}" placeholder="Player 2">
+  <button onclick="doCompare()" class="btn">Compare</button>
 </div>
 
 <datalist id="plist">
-  {% for p in all_players %}<option value="{{ p.player }}">{% endfor %}
+  {% for p in all_players %}
+    <option value="{{ p.player }}">
+  {% endfor %}
 </datalist>
 
 {% if p1_stats and p2_stats %}
-<div class="card" style="padding:0;overflow:auto;">
-  <table>
-    <thead>
-      <tr>
-        <th>Stat</th>
-        <th>{{ p1_name }}</th>
-        <th>{{ p2_name }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% set stats = [
-        ("Total Points", p1_stats.total_pts, p2_stats.total_pts),
-        ("FGA",          p1_stats.FGA,       p2_stats.FGA),
-        ("FGM",          p1_stats.FGM,       p2_stats.FGM),
-        ("FG%",          p1_stats.FG_PCT,    p2_stats.FG_PCT),
-        ("3P%",          p1_stats.THREE_PCT, p2_stats.THREE_PCT),
-        ("Games",        p1_stats.games_played, p2_stats.games_played),
-      ] %}
-      {% for label, v1, v2 in stats %}
-      <tr>
-        <td style="color:var(--muted);font-size:.8rem;">{{ label }}</td>
-        <td class="{{ 'win' if v1 and v2 and v1 >= v2 else 'lose' }}">{{ v1 if v1 is not none else '—' }}{% if "%" in label and v1 is not none %}%{% endif %}</td>
-        <td class="{{ 'win' if v1 and v2 and v2 > v1 else 'lose' }}">{{ v2 if v2 is not none else '—' }}{% if "%" in label and v2 is not none %}%{% endif %}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+<!-- ⭐ 图表卡片 -->
+<div class="card-box compare-chart">
+
+  <h3 style="margin-bottom:20px;">Quick Comparison</h3>
+
+  <div class="bar-group">
+    <span>Total Points</span>
+    <div class="bars">
+      <div class="bar left" style="width: {{ p1_stats.total_pts * 5 }}px"></div>
+      <div class="bar right" style="width: {{ p2_stats.total_pts * 5 }}px"></div>
+    </div>
+  </div>
+
+  <div class="bar-group">
+    <span>FG%</span>
+    <div class="bars">
+      <div class="bar left" style="width: {{ p1_stats.FG_PCT }}%"></div>
+      <div class="bar right" style="width: {{ p2_stats.FG_PCT }}%"></div>
+    </div>
+  </div>
+
 </div>
 
-<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;">
-  <a href="/player/{{ p1_name }}" class="btn" style="text-decoration:none;">{{ p1_name }} full profile →</a>
-  <a href="/player/{{ p2_name }}" class="btn" style="text-decoration:none;">{{ p2_name }} full profile →</a>
+<!-- ⭐ 表格卡片 -->
+<div class="card-box compare-table">
+
+  <h3 style="margin-bottom:20px;">Detailed Stats</h3>
+
+  <div class="row header">
+    <div>Stat</div>
+    <div>{{ p1_name }}</div>
+    <div>{{ p2_name }}</div>
+  </div>
+
+  <div class="row">
+    <div>Total Points</div>
+    <div>{{ p1_stats.total_pts }}</div>
+    <div>{{ p2_stats.total_pts }}</div>
+  </div>
+
+  <div class="row">
+    <div>FGA</div>
+    <div>{{ p1_stats.FGA }}</div>
+    <div>{{ p2_stats.FGA }}</div>
+  </div>
+
+  <div class="row">
+    <div>FG%</div>
+    <div>{{ p1_stats.FG_PCT }}%</div>
+    <div>{{ p2_stats.FG_PCT }}%</div>
+  </div>
+
+  <div class="row">
+    <div>Games</div>
+    <div>{{ p1_stats.games_played }}</div>
+    <div>{{ p2_stats.games_played }}</div>
+  </div>
+
 </div>
+
+<!-- 跳转 -->
+<div style="margin-top:20px;">
+  <a href="/player/{{ p1_name }}">{{ p1_name }} →</a>
+  |
+  <a href="/player/{{ p2_name }}">{{ p2_name }} →</a>
+</div>
+
 {% endif %}
 
+</div>
+
+<!-- JS -->
 <script>
 function doCompare(){
-  const p1=document.getElementById("sp1").value.trim(), p2=document.getElementById("sp2").value.trim();
-  if(p1&&p2) location.href=`/compare?p1=${encodeURIComponent(p1)}&p2=${encodeURIComponent(p2)}`;
+  const p1=document.getElementById("sp1").value.trim();
+  const p2=document.getElementById("sp2").value.trim();
+  if(p1 && p2){
+    window.location.href = `/compare?p1=${encodeURIComponent(p1)}&p2=${encodeURIComponent(p2)}`;
+  }
 }
 </script>
+
+<!-- ⭐ 页面样式 -->
+<style>
+
+.card-box {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
+}
+
+.player-card {
+  width: 260px;
+  transition: 0.2s;
+}
+
+.player-card:hover {
+  transform: translateY(-5px);
+}
+
+.vs {
+  font-size: 32px;
+  font-weight: bold;
+  color: #999;
+}
+
+.compare-chart {
+  width: 600px;
+}
+
+.bar-group {
+  margin-bottom: 20px;
+}
+
+.bars {
+  display: flex;
+  gap: 10px;
+}
+
+.bar {
+  height: 12px;
+  border-radius: 6px;
+}
+
+.bar.left {
+  background: #3b82f6;
+}
+
+.bar.right {
+  background: #f97316;
+}
+
+.compare-table {
+  max-width: 600px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.row.header {
+  font-weight: bold;
+  border-bottom: 2px solid #333;
+}
+
+</style>
+
 {% endblock %}

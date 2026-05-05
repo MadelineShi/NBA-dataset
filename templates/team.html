@@ -1,53 +1,91 @@
 {% extends "base.html" %}
 {% block title %}{{ abbrev }} — HoopBase{% endblock %}
+
 {% block content %}
-<h1>{{ abbrev }}
+
+<div class="compare-container">
+
+<h1 style="font-size:42px;margin-bottom:20px;">
+  {{ abbrev }}
   <select onchange="location.href='/team/{{ abbrev }}?year='+this.value"
-    style="font-size:.9rem;background:var(--mid);border:1px solid #444;color:var(--light);border-radius:4px;padding:.3rem .6rem;margin-left:.75rem;">
+    style="margin-left:15px;padding:6px;border-radius:8px;">
     {% for y in years %}
-    <option value="{{ y }}" {% if y==year_filter %}selected{% endif %}>{{ y }}-{{ y+1 }}</option>
+    <option value="{{ y }}" {% if y==year_filter %}selected{% endif %}>
+      {{ y }}-{{ y+1 }}
+    </option>
     {% endfor %}
   </select>
 </h1>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-  <div>
-    <h2>Season History</h2>
-    <div class="card" style="padding:0;overflow:auto;max-height:480px;">
-      <table>
-        <thead><tr><th>Season</th><th>Total Pts</th><th>FG%</th><th>Games</th></tr></thead>
-        <tbody>
-          {% for s in seasons %}
-          <tr>
-            <td>{{ s.season_year }}-{{ s.season_year+1 }}</td>
-            <td>{{ s.total_pts }}</td>
-            <td>{{ s.fg_pct }}%</td>
-            <td>{{ s.games }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+
+  <!-- ⭐ Season History -->
+  <div class="card-box">
+    <h3 style="margin-bottom:20px;">Season History</h3>
+
+    {% for s in seasons %}
+    <div class="bar-group">
+      <span>{{ s.season_year }}-{{ s.season_year+1 }}</span>
+      <div class="bars">
+        <div class="bar left" style="width: {{ s.fg_pct }}%"></div>
+      </div>
+      <div style="font-size:12px;color:#666;">
+        {{ s.total_pts }} pts · {{ s.games }} games
+      </div>
     </div>
+    {% endfor %}
+
   </div>
 
-  <div>
-    <h2>Top Players — {{ year_filter }}-{{ year_filter+1 }}</h2>
-    <div class="card" style="padding:0;overflow:auto;max-height:480px;">
-      <table>
-        <thead><tr><th>Player</th><th>Pts</th><th>FGA</th><th>FG%</th><th>G</th></tr></thead>
-        <tbody>
-          {% for p in top_players %}
-          <tr>
-            <td><a href="/player/{{ p.player }}">{{ p.player }}</a></td>
-            <td>{{ p.total_pts }}</td>
-            <td>{{ p.FGA }}</td>
-            <td>{{ p.FG_PCT }}%</td>
-            <td>{{ p.games_played }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <!-- ⭐ Top Players -->
+  <div class="card-box">
+    <h3 style="margin-bottom:20px;">
+      Top Players — {{ year_filter }}-{{ year_filter+1 }}
+    </h3>
+
+    {% for p in top_players %}
+    <div class="row">
+      <div>
+        <a href="/player/{{ p.player }}">{{ p.player }}</a>
+      </div>
+      <div>{{ p.total_pts }}</div>
+      <div>{{ p.FGA }}</div>
+      <div>{{ p.FG_PCT }}%</div>
+      <div>{{ p.games_played }}</div>
     </div>
+    {% endfor %}
+
   </div>
+
 </div>
+
+<!-- ⭐ 饼图（FG vs Miss） -->
+<div class="card-box" style="max-width:400px;margin-top:40px;">
+
+<h3 style="margin-bottom:20px;">Shot Distribution</h3>
+
+<canvas id="pieChart"></canvas>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('pieChart');
+
+new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: ['Made', 'Missed'],
+    datasets: [{
+      data: [
+        {{ seasons[0].fg_pct }},
+        {{ 100 - seasons[0].fg_pct }}
+      ]
+    }]
+  }
+});
+</script>
+
 {% endblock %}

@@ -1,52 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>{% block title %}HoopBase{% endblock %}</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --orange: #f06620; --dark: #1a1a2e; --mid: #16213e;
-      --light: #e0e0e0; --white: #fff; --muted: #888; --radius: 6px;
-    }
-    body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--dark); color: var(--light); min-height: 100vh; }
-    nav { background: var(--mid); border-bottom: 2px solid var(--orange); display: flex; align-items: center; gap: 1.5rem; padding: .75rem 2rem; }
-    nav .logo { font-size: 1.5rem; font-weight: 800; color: var(--orange); text-decoration: none; }
-    nav a { color: var(--light); text-decoration: none; font-size: .9rem; opacity: .8; }
-    nav a:hover { opacity: 1; color: var(--orange); }
-    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-    .card { background: var(--mid); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
-    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
-    th { background: var(--orange); color: var(--white); padding: .5rem .75rem; text-align: left; white-space: nowrap; }
-    th a { color: var(--white); text-decoration: none; }
-    th a:hover { text-decoration: underline; }
-    td { padding: .45rem .75rem; border-bottom: 1px solid #2a2a4a; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #1e1e3a; }
-    td a { color: var(--orange); text-decoration: none; }
-    td a:hover { text-decoration: underline; }
-    .filter-bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: flex-end; margin-bottom: 1.5rem; }
-    .filter-bar label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .2rem; }
-    .filter-bar input, .filter-bar select { background: var(--mid); border: 1px solid #444; color: var(--light); padding: .4rem .65rem; border-radius: var(--radius); font-size: .9rem; }
-    .filter-bar input:focus, .filter-bar select:focus { outline: none; border-color: var(--orange); }
-    .btn { background: var(--orange); color: var(--white); border: none; padding: .45rem 1.1rem; border-radius: var(--radius); cursor: pointer; font-size: .9rem; font-weight: 600; }
-    .btn:hover { opacity: .85; }
-    .win { color: #4caf50; font-weight: 700; }
-    .lose { color: var(--muted); }
-    h1 { font-size: 1.75rem; margin-bottom: 1rem; }
-    h2 { font-size: 1.2rem; margin-bottom: .75rem; color: var(--orange); }
-  </style>
   {% block head %}{% endblock %}
 </head>
 <body>
-<nav>
-  <a class="logo" href="/">🏀 HoopBase</a>
-  <a href="/search">Players</a>
-  <a href="/compare">Compare</a>
-  <a href="/teams">Teams</a>
-  <a href="/leaderboards">Leaderboards</a>
-</nav>
+  <canvas id="bg-canvas"></canvas>
+  <nav class="navbar">
+    <div class="nav-left">
+      <a class="logo" href="/">🏀 HoopBase</a>
+      <a href="/search">Players</a>
+      <a href="/compare">Compare</a>
+      <a href="/teams">Teams</a>
+      <a href="/leaderboards">Leaderboards</a>
+    </div>
+  
+    <div class="nav-right">
+      <input id="nav-search" placeholder="Search player..." />
+    </div>
+  </nav>
 <div class="container">{% block content %}{% endblock %}</div>
 </body>
 </html>
+
+<script>
+  document.getElementById("nav-search").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+          const query = this.value;
+          window.location.href = "/search?q=" + encodeURIComponent(query);
+      }
+  });
+  
+  </script>
+
+<script>
+  let index = 0;
+  const track = document.getElementById("track");
+  const images = track.children;
+  
+  function updateCarousel() {
+      track.style.transform = `translateX(-${index * 440}px)`;
+  
+      for (let i = 0; i < images.length; i++) {
+          images[i].classList.remove("active");
+      }
+      images[index].classList.add("active");
+  }
+  
+  function nextSlide() {
+      index = (index + 1) % images.length;
+      updateCarousel();
+  }
+  
+  function prevSlide() {
+      index = (index - 1 + images.length) % images.length;
+      updateCarousel();
+  }
+  
+  updateCarousel();
+  </script>
+
+<script>
+const canvas = document.getElementById("bg-canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let dots = [];
+
+for (let i = 0; i < 80; i++) {
+    dots.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        dx: 0.3,
+        dy: 0.3
+    });
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    dots.forEach(dot => {
+        dot.x += dot.dx;
+        dot.y += dot.dy;
+
+        /* 关键：循环回左上 */
+        if (dot.x > canvas.width) dot.x = 0;
+        if (dot.y > canvas.height) dot.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = "#bbb";
+        ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+</script>

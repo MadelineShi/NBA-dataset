@@ -1,0 +1,510 @@
+/* ===== LIGHT THEME ===== */
+body {
+    background: #f7f9fc;
+    color: #1a1a2e;
+  }
+  
+  /* ===== NAVBAR ===== */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 40px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  
+  .nav-left a {
+    margin-right: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .nav-left a:hover {
+    color: #f06620;
+    transform: translateY(-2px);
+  }
+  
+  .logo {
+    font-weight: 800;
+    color: #f06620;
+    font-size: 1.3rem;
+  }
+  
+  /* ===== SEARCH BAR ===== */
+  #nav-search {
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+    width: 180px;
+  }
+  
+  #nav-search:focus {
+    width: 260px;
+    border-color: #f06620;
+    outline: none;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;  /* 原来可能是 1fr 1fr */
+    align-items: center;
+    padding: 80px 100px;   /* 增加整体空间 */
+}
+  
+    .hero-left {
+    margin-left: 60px;   /* 往右 */
+    margin-top: 60px;    /* 往下 */
+}
+  
+  .hero-left h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .hero-left p {
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  .hero-right img {
+    width: 400px;
+    border-radius: 20px;
+    transition: transform 0.4s ease;
+  }
+  
+  .hero-right img:hover {
+    transform: scale(1.05);
+  }
+
+.nav-left a {
+    margin-right: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-left a:hover {
+    color: #f97316;
+    transform: translateY(-2px);
+}
+
+.logo {
+    font-weight: bold;
+    color: #f97316;
+    font-size: 1.3rem;
+}
+
+#nav-search {
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    transition: all 0.3s ease;
+}
+
+#nav-search:focus {
+    width: 220px;
+    border-color: #f97316;
+}
+
+/* ===== HERO LAYOUT ===== */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px 80px;
+    gap: 40px;
+}
+
+/* 左侧文字 */
+.hero-left {
+    flex: 1;
+}
+
+.hero-left h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+}
+
+.hero-left p {
+    color: #555;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+}
+
+/* 按钮 */
+.hero-btn {
+    background: #3b82f6;
+    padding: 12px 22px;
+    border-radius: 30px;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.hero-btn:hover {
+    transform: scale(1.05);
+}
+
+/* 右侧图片 */
+.hero-right img {
+    width: 420px;
+    border-radius: 20px;
+    transition: transform 0.4s ease;
+}
+
+.hero-right img:hover {
+    transform: scale(1.05);
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.hero-left h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+
+
+
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+/* ===== 2x2 图片布局 ===== */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;   /* 稍微加大间距 */
+}
+
+/* 单个卡片 */
+.img-card {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+/* 图片 */
+.img-card img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 18px;
+}
+
+/* 覆盖文字 */
+.overlay {
+    position: absolute;
+    bottom: 10px;
+    left: 15px;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.4s ease;
+}
+
+/* hover 效果 */
+.img-card:hover img {
+    transform: scale(1.08);
+}
+
+.img-card:hover .overlay {
+    transform: scale(1.1);
+}
+
+/* ===== GRID 布局 ===== */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+/* 卡片 */
+.img-card {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+/* 图片 */
+.img-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;   /* 正方形 */
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+/* 左下角文字 */
+.overlay {
+    position: absolute;
+    bottom: 12px;
+    left: 15px;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    background: rgba(0,0,0,0.4);
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+/* hover */
+.img-card:hover img {
+    transform: scale(1.1);
+}
+
+.img-card:hover .overlay {
+    transform: scale(1.1);
+}
+
+.img-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.img-card:hover::after {
+    opacity: 1;
+}
+
+/* ===== 顶部文字 ===== */
+.hero-text {
+    padding: 40px 80px 10px 80px;  /* 上移 */
+}
+
+.hero-text h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.hero-text .indent {
+    display: inline-block;
+    margin-left: 200px;   /* ← 改这里 */
+}
+
+/* 小字 */
+.hero-text p {
+    margin-top: 20px;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* ===== 图片占满全宽 ===== */
+.card-grid-full {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    padding: 40px 80px;
+}
+
+/* 图片保持16:9 */
+.img-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+/* ===== 页面整体 ===== */
+.compare-container {
+    padding: 60px 80px;
+}
+
+/* ===== 输入栏 ===== */
+.compare-input {
+    margin: 20px 0 40px;
+    display: flex;
+    gap: 10px;
+}
+
+.compare-input input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 220px;
+}
+
+.compare-input button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: #4c7cf3;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.compare-input button:hover {
+    background: #355fd1;
+}
+
+/* ===== 玩家卡片 ===== */
+.player-cards {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.player-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    width: 260px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: 0.2s;
+  }
+  
+  .player-card:hover {
+    transform: translateY(-5px);
+  }
+
+/* VS */
+.vs {
+    font-size: 32px;
+    font-weight: bold;
+    color: #999;
+  }
+
+/* ===== 表格 ===== */
+.compare-table {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.row.header {
+    font-weight: bold;
+    border-bottom: 2px solid #333;
+}
+
+.compare-page {
+    margin-top: -40px;
+  }
+  
+  .compare-title {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 42px;
+  }
+
+  .compare-chart {
+    margin-top: 40px;
+    width: 600px;
+  }
+  
+  .bar-group {
+    margin-bottom: 20px;
+  }
+  
+  .bars {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .bar {
+    height: 12px;
+    border-radius: 6px;
+  }
+  
+  .bar.left {
+    background: #3b82f6;
+  }
+  
+  .bar.right {
+    background: #f97316;
+  }
+
+  /* ⭐ 全站统一卡片 */
+.card-box {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.2s;
+  }
+  
+  .card-box:hover {
+    transform: translateY(-4px);
+  }
+  
+  /* ⭐ 小卡片（上面 stats） */
+  .stat-box {
+    text-align: center;
+    min-width: 120px;
+  }
+
+  
+  .card-box table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .card-box th {
+    text-align: left;
+    padding-bottom: 10px;
+  }
+  
+  .card-box td {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  /* ⭐ 全局页面往上提 */
+.compare-container {
+    margin-top: 10px !important;
+    padding-top: 0 !important;
+  }
+  
+  /* ⭐ 所有页面标题贴近 navbar */
+  h1 {
+    margin-top: 10px !important;
+  }
+  
+  /* ⭐ body 顶部留白减少 */
+  body {
+    padding-top: 10px;
+  }
+
+  .compare-container h1 {
+    margin-bottom: 15px;
+  }
+  
+  .compare-container select {
+    vertical-align: middle;
+  }
