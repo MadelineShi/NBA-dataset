@@ -10,8 +10,8 @@
   <select onchange="location.href='/team/{{ abbrev }}?year='+this.value"
     style="margin-left:15px;padding:6px;border-radius:8px;">
     {% for y in years %}
-    <option value="{{ y }}" {% if y==year_filter %}selected{% endif %}>
-      {{ y }}-{{ y+1 }}
+    <option value="{{ y.season_year }}" {% if y.season_year|string == selected_year %}selected{% endif %}>
+      {{ y.season_year }}-{{ y.season_year + 1 }}
     </option>
     {% endfor %}
   </select>
@@ -40,7 +40,7 @@
   <!-- ⭐ Top Players -->
   <div class="card-box">
     <h3 style="margin-bottom:20px;">
-      Top Players — {{ year_filter }}-{{ year_filter+1 }}
+      Top Players{% if selected_year %} — {{ selected_year }}-{{ selected_year|int + 1 }}{% endif %}
     </h3>
 
     {% for p in top_players %}
@@ -80,8 +80,8 @@ new Chart(ctx, {
     labels: ['Made', 'Missed'],
     datasets: [{
       data: [
-        {{ seasons[0].fg_pct }},
-        {{ 100 - seasons[0].fg_pct }}
+        {{ seasons[0].FG_PCT|default(0) }},
+        {{ 100 - (seasons[0].FG_PCT|default(0)) }}
       ]
     }]
   }
