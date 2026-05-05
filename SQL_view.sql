@@ -38,7 +38,7 @@ SELECT
 
     COUNT(DISTINCT s.game_id) AS games_played
 
-FROM Shot s
+FROM Shot s FORCE INDEX (idx_shot_player_covering)
 JOIN Player p ON p.player_id = s.player_id
 GROUP BY s.player_id, s.team_name, p.player_name;
 
@@ -63,5 +63,5 @@ SELECT
         ELSE 0
     END) AS total_pts
 
-FROM Shot s
+FROM Shot s FORCE INDEX (idx_shot_team_covering)
 GROUP BY s.team_name;
