@@ -13,8 +13,7 @@ hoopbase/
 ├── schema.sql          ← run first in MySQL
 ├── load_data.py        ← loads all game CSVs into MySQL
 ├── app.py              ← Flask server
-├── build_team_stats    ← Loads in team stats
-├── build_stats         ← Loads in player stats
+├── SQL_view.sql        ← creates player/team career views
 ├── data/               ← put ALL your game CSV files here
 │   ├── 20220313.csv
 │   ├── 20220314.csv
@@ -23,7 +22,7 @@ hoopbase/
     ├── base.html
     ├── home.html
     ├── search.html
-    ├── player.html       ← includes interactive shot chart
+    ├── player.html     ← includes interactive shot chart
     ├── compare.html
     ├── teams.html
     ├── team.html
@@ -59,13 +58,21 @@ Once downloaded, place the folder in the root of the project as `/data`. Please 
 ### 5. Load the data
 ```
 python load_data.py
-python build_team_stats.py
-python build_stats.py
 ```
-This will take several minutes for 4000+ files (~5-6 million shot rows total). It prints progress every 100 files so you can see it working. Safe to re-run — it skips already-loaded games.
-The other two will load in player data and team data and will print progress accordingly for player every 100 files and team every single file. 
+This will take more than an hour for 4000+ files (~5-6 million shot rows total). It prints progress every 100 files so you can see it working. Safe to re-run — it skips already-loaded games.
 
-### 6. Run the site
+### 6. Build aggregated stats (via SQL views)
+
+Open `SQL_view.sql` in MySQL Workbench and run it.
+
+This creates:
+
+- player_career_stats (per player per team)
+- team_career_stats (per team totals)
+
+All stats (FG%, points, 3P%) are computed dynamically using SQL views over the Shot table.
+
+### 7. Run the site
 ```
 python app.py
 ```
