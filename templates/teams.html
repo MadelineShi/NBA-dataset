@@ -7,43 +7,43 @@
 
 <h1 style="font-size:42px;margin-bottom:25px;">All Teams</h1>
 
-<!-- ⭐ 卡片表格 -->
 <div class="card-box">
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:2px solid #ddd;text-align:left;">
+        <th style="padding:10px 15px;">Team</th>
+        <th style="padding:10px 15px;">Total Pts</th>
+        <th style="padding:10px 15px;">FG%</th>
+        <th style="padding:10px 15px;">Shots</th>
+        <th style="padding:10px 15px;">Games</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in teams %}
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:10px 15px;">{{ t.team_name }}</td>
+        <td style="padding:10px 15px;">{{ t.total_pts }}</td>
+        <td style="padding:10px 15px;">{{ t.FG_PCT }}%</td>
+        <td style="padding:10px 15px;">{{ t.FGA }}</td>
+        <td style="padding:10px 15px;">{{ t.games }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-  <div class="row header">
-    <div>Team</div>
-    <div>Total Pts</div>
-    <div>FG%</div>
-    <div>Shots</div>
-    <div>Games</div>
-  </div>
-
+<!-- FG% Bar Chart -->
+<div class="card-box" style="max-width:700px;margin-top:30px;">
+  <h3 style="margin-bottom:20px;">FG% Overview</h3>
   {% for t in teams %}
-  <div class="row">
-    <div><a href="/team/{{ t.team }}">{{ t.team }}</a></div>
-    <div>{{ t.total_pts }}</div>
-    <div>{{ t.fg_pct }}%</div>
-    <div>{{ t.total_shots }}</div>
-    <div>{{ t.games }}</div>
+  <div class="bar-group">
+    <span>{{ t.team_name }}</span>
+    <div class="bars">
+      <div class="bar left" style="width: {{ t.FG_PCT }}%"></div>
+    </div>
+    <span style="font-size:12px;color:#666;">{{ t.FG_PCT }}%</span>
   </div>
   {% endfor %}
-
-</div>
-
-<!-- ⭐ 图表（简单柱状） -->
-<div class="card-box" style="max-width:700px;margin-top:30px;">
-
-<h3 style="margin-bottom:20px;">FG% Overview</h3>
-
-{% for t in teams %}
-<div class="bar-group">
-  <span>{{ t.team }}</span>
-  <div class="bars">
-    <div class="bar left" style="width: {{ t.fg_pct }}%"></div>
-  </div>
-</div>
-{% endfor %}
-
 </div>
 
 </div>

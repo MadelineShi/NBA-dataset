@@ -1,76 +1,112 @@
 {% extends "base.html" %}
-{% block title %}Search — HoopBase{% endblock %}
+{% block title %}Player Search — HoopBase{% endblock %}
+
 {% block content %}
-<h1>Player Search</h1>
-
-<div class="filter-bar">
-  <div><label>Name</label><input type="text" id="fq" value="{{ q }}" placeholder="e.g. LeBron"></div>
-  <div>
-    <label>Team</label>
-    <select id="fteam">
-      <option value="">All</option>
-      {% for t in teams %}<option value="{{ t.team }}" {% if t.team==team %}selected{% endif %}>{{ t.team }}</option>{% endfor %}
-    </select>
-  </div>
-  <div>
-    <label>Season</label>
-    <select id="fyear">
-      <option value="">All</option>
-      {% for y in years %}<option value="{{ y.season_year }}" {% if y.season_year|string==year %}selected{% endif %}>{{ y.season_year }}</option>{% endfor %}
-    </select>
-  </div>
-  <div>
-    <label>Sort by</label>
-    <select id="fsort">
-      {% for col,label in [("total_pts","Total Pts"),("FGA","FGA"),("FG_PCT","FG%"),("THREE_PCT","3P%"),("games_played","Games")] %}
-      <option value="{{ col }}" {% if col==sort %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <button class="btn" onclick="doSearch()">Search</button>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Player Search</h1>
+    <p class="text-sm text-gray-500">Filter and analyze player statistics across all seasons.</p>
 </div>
 
-<p style="color:var(--muted);font-size:.85rem;margin-bottom:.75rem;">{{ results|length }} result(s)</p>
+<!-- Search Filters Card -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <form action="/search" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+        
+        <!-- Name Input -->
+        <div class="md:col-span-2">
+            <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Player Name</label>
+            <input type="text" name="q" id="q" value="{{ q }}" placeholder="e.g. LeBron James" 
+                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand focus:border-brand outline-none transition">
+        </div>
 
-<div class="card" style="padding:0;overflow:auto;">
-  <table>
-    <thead>
-      <tr>
-        <th>Player</th><th>Team</th>
-        <th><a href="#" onclick="setSort('total_pts')">Total Pts</a></th>
-        <th><a href="#" onclick="setSort('FGA')">FGA</a></th>
-        <th><a href="#" onclick="setSort('FGM')">FGM</a></th>
-        <th><a href="#" onclick="setSort('FG_PCT')">FG%</a></th>
-        <th><a href="#" onclick="setSort('THREE_PCT')">3P%</a></th>
-        <th><a href="#" onclick="setSort('games_played')">Games</a></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in results %}
-      <tr>
-        <td><a href="/player/{{ r.player }}">{{ r.player }}</a></td>
-        <td><a href="/team/{{ r.team }}">{{ r.team }}</a></td>
-        <td>{{ r.total_pts }}</td>
-        <td>{{ r.FGA }}</td>
-        <td>{{ r.FGM }}</td>
-        <td>{{ r.FG_PCT }}%</td>
-        <td>{{ r.THREE_PCT or '—' }}%</td>
-        <td>{{ r.games_played }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">No results.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        <!-- Team Dropdown -->
+        <div>
+            <label for="team" class="block text-sm font-medium text-gray-700 mb-1">Team</label>
+            <select name="team" id="team" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand outline-none bg-white">
+                <option value="">All Teams</option>
+                {% for t in teams %}
+                    <option value="{{ t.team_name }}" {% if t.team_name == team %}selected{% endif %}>
+                        {{ t.team_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Season Dropdown -->
+        <div>
+            <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Season</label>
+            <select name="year" id="year" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand outline-none bg-white">
+                <option value="">Career (All-Time)</option>
+                {% for y in years %}
+                    <option value="{{ y.season_year }}" {% if year == (y.season_year|string) %}selected{% endif %}>
+                        {{ y.season_year }}-{{ (y.season_year + 1)|string|truncate(2, True, '') }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+            <!-- Hidden sort input to preserve sorting when searching -->
+            <input type="hidden" name="sort" value="{{ sort }}">
+            <button type="submit" class="w-full bg-brand hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors duration-200">
+                Apply Filters
+            </button>
+        </div>
+    </form>
 </div>
 
-<script>
-function doSearch() {
-  const q=document.getElementById("fq").value, team=document.getElementById("fteam").value,
-        year=document.getElementById("fyear").value, sort=document.getElementById("fsort").value;
-  location.href=`/search?q=${encodeURIComponent(q)}&team=${team}&year=${year}&sort=${sort}`;
-}
-function setSort(col){ document.getElementById("fsort").value=col; doSearch(); return false; }
-document.getElementById("fq").addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
-</script>
+<!-- Results Section -->
+<div class="flex justify-between items-center mb-4">
+    <h2 class="text-lg font-semibold text-gray-800">Results <span class="text-gray-500 font-normal text-sm ml-2">({{ results|length }} found)</span></h2>
+</div>
+
+<!-- Table Card -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <!-- Sticky Header -->
+            <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider sticky top-0 z-10 border-b border-gray-200">
+                <tr>
+                    <th class="px-6 py-4 font-semibold">Player</th>
+                    <th class="px-4 py-4 font-semibold">Team</th>
+                    <!-- Clickable headers to change sorting -->
+                    <th class="px-4 py-4 font-semibold text-right hover:text-brand"><a href="?q={{ q }}&team={{ team }}&year={{ year }}&sort=total_pts">Pts{% if sort == 'total_pts' %} ▼{% endif %}</a></th>
+                    <th class="px-4 py-4 font-semibold text-right hover:text-brand"><a href="?q={{ q }}&team={{ team }}&year={{ year }}&sort=FGA">FGA{% if sort == 'FGA' %} ▼{% endif %}</a></th>
+                    <th class="px-4 py-4 font-semibold text-right hover:text-brand"><a href="?q={{ q }}&team={{ team }}&year={{ year }}&sort=FGM">FGM{% if sort == 'FGM' %} ▼{% endif %}</a></th>
+                    <th class="px-4 py-4 font-semibold text-right hover:text-brand"><a href="?q={{ q }}&team={{ team }}&year={{ year }}&sort=FG_PCT">FG%{% if sort == 'FG_PCT' %} ▼{% endif %}</a></th>
+                    <th class="px-4 py-4 font-semibold text-right hover:text-brand"><a href="?q={{ q }}&team={{ team }}&year={{ year }}&sort=THREE_PCT">3P%{% if sort == 'THREE_PCT' %} ▼{% endif %}</a></th>
+                    <th class="px-4 py-4 font-semibold text-right hover:text-brand"><a href="?q={{ q }}&team={{ team }}&year={{ year }}&sort=games_played">Games{% if sort == 'games_played' %} ▼{% endif %}</a></th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700 divide-y divide-gray-100">
+                {% for r in results %}
+                <tr class="hover:bg-blue-50 transition-colors even:bg-gray-50/50">
+                    <td class="px-6 py-3 font-medium whitespace-nowrap">
+                        <a href="/player/{{ r.player_name }}" class="text-blue-600 hover:text-blue-800 hover:underline">
+                            {{ r.player_name }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-gray-500 font-semibold">
+                        <a href="/team/{{ r.team_name }}" class="hover:text-gray-900 transition">
+                            {{ r.team_name }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3 text-right font-semibold {% if sort == 'total_pts' %}text-gray-900 bg-gray-50/50{% endif %}">{{ r.total_pts }}</td>
+                    <td class="px-4 py-3 text-right {% if sort == 'FGA' %}font-semibold text-gray-900 bg-gray-50/50{% endif %}">{{ r.FGA }}</td>
+                    <td class="px-4 py-3 text-right {% if sort == 'FGM' %}font-semibold text-gray-900 bg-gray-50/50{% endif %}">{{ r.FGM }}</td>
+                    <td class="px-4 py-3 text-right {% if sort == 'FG_PCT' %}font-semibold text-gray-900 bg-gray-50/50{% endif %}">{{ r.FG_PCT }}%</td>
+                    <td class="px-4 py-3 text-right {% if sort == 'THREE_PCT' %}font-semibold text-gray-900 bg-gray-50/50{% endif %}">{{ r.THREE_PCT or '—' }}%</td>
+                    <td class="px-4 py-3 text-right {% if sort == 'games_played' %}font-semibold text-gray-900 bg-gray-50/50{% endif %}">{{ r.games_played }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                        No players found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

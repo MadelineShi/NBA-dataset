@@ -16,10 +16,6 @@ Routes
   GET  /api/shots/<name>?year=        → JSON shot coordinates for chart
 """
 
-"""
-HoopBase — Flask Backend (Shot Log Edition)
-"""
-
 from flask import Flask, render_template, request, jsonify, abort
 import mysql.connector
 
@@ -28,8 +24,8 @@ app = Flask(__name__)
 DB_CONFIG = {
     "host":     "localhost",
     "user":     "root",
-    "password": "phsj7655",
-    "database": "hoopbase",
+    "password": "gha$bbhisA23rtyuiop0999",
+    "database": "hoopbase2",
 }
 
 def get_db():
@@ -45,41 +41,43 @@ def query(sql, params=(), one=False):
 
 
 # ── helpers ─────────────────────────────────────────
+# Used only when a year filter is applied (views are career-only)
 
 PLAYER_STATS_SQL = """
     SELECT
-        s.player_name,
+        p.player_name,
         s.team_name,
         COUNT(*) AS FGA,
         SUM(s.made) AS FGM,
         ROUND(SUM(s.made) / COUNT(*) * 100, 1) AS FG_PCT,
-        SUM(CASE WHEN s.shot_type='3-pointer' THEN 1 ELSE 0 END) AS TPA,
-        SUM(CASE WHEN s.shot_type='3-pointer' AND s.made=1 THEN 1 ELSE 0 END) AS TPM,
+        SUM(CASE WHEN s.shot_type='3' THEN 1 ELSE 0 END) AS TPA,
+        SUM(CASE WHEN s.shot_type='3' AND s.made=1 THEN 1 ELSE 0 END) AS TPM,
         ROUND(
-            SUM(CASE WHEN s.shot_type='3-pointer' AND s.made=1 THEN 1 ELSE 0 END)
-            / NULLIF(SUM(CASE WHEN s.shot_type='3-pointer' THEN 1 ELSE 0 END), 0)
+            SUM(CASE WHEN s.shot_type='3' AND s.made=1 THEN 1 ELSE 0 END)
+            / NULLIF(SUM(CASE WHEN s.shot_type='3' THEN 1 ELSE 0 END), 0)
             * 100, 1) AS THREE_PCT,
-        SUM(CASE 
-            WHEN s.shot_type='2-pointer' AND s.made=1 THEN 2
-            WHEN s.shot_type='3-pointer' AND s.made=1 THEN 3
+        SUM(CASE
+            WHEN s.shot_type='2' AND s.made=1 THEN 2
+            WHEN s.shot_type='3' AND s.made=1 THEN 3
             ELSE 0 END) AS total_pts,
         COUNT(DISTINCT s.game_id) AS games_played
     FROM Shot s
+    JOIN Player p ON s.player_id = p.player_id
     {join}
     WHERE {where}
-    GROUP BY s.player_name, s.team_name
+    GROUP BY p.player_name, s.team_name
 """
 
 def player_stats_query(name_filter=None, team_filter=None, year_filter=None,
                        sort="total_pts", limit=200):
-
-    join  = "JOIN Game g ON g.game_id = s.game_id" if year_filter else ""
+    """Used only when year_filter is set — otherwise we use the view."""
+    join = "JOIN Game g ON g.game_id = s.game_id" if year_filter else ""
 
     wheres = ["1=1"]
     params = []
 
     if name_filter:
-        wheres.append("s.player_name LIKE %s")
+        wheres.append("p.player_name LIKE %s")
         params.append(f"%{name_filter}%")
 
     if team_filter:
@@ -106,6 +104,7 @@ def player_stats_query(name_filter=None, team_filter=None, year_filter=None,
 def home():
     latest_year = query("SELECT MAX(season_year) AS y FROM Game", one=True)["y"]
 
+    # Year-filtered top scorers — view is career-only so raw query needed here
     top = player_stats_query(year_filter=latest_year, limit=10)
 
     teams = query("SELECT DISTINCT team_name FROM Shot ORDER BY team_name")
@@ -132,6 +131,7 @@ def search():
         sort = "total_pts"
 
     if not year:
+        # ── use the view for career search ──
         wheres = ["games_played >= 5"]
         params = []
 
@@ -146,13 +146,15 @@ def search():
         where = " AND ".join(wheres)
 
         results = query(f"""
-            SELECT player_name, team_name, total_pts, FGA, FGM, FG_PCT, TPA, TPM, THREE_PCT, games_played
+            SELECT player_name, team_name, total_pts, FGA, FGM, FG_PCT,
+                   TPA, TPM, THREE_PCT, games_played
             FROM player_career_stats
             WHERE {where}
             ORDER BY {sort} DESC LIMIT 200
         """, params)
 
     else:
+        # Year filter requires hitting Shot directly
         results = player_stats_query(
             name_filter=q or None,
             team_filter=team or None,
@@ -179,26 +181,28 @@ def search():
 @app.route("/player/<path:player_name>")
 def player_detail(player_name):
 
+    # Per-season breakdown — needs raw query (view has no season column)
     career = query("""
         SELECT g.season_year,
                s.team_name,
                COUNT(*) AS FGA,
                SUM(s.made) AS FGM,
                ROUND(SUM(s.made)/COUNT(*)*100,1) AS FG_PCT,
-               SUM(CASE WHEN s.shot_type='3-pointer' THEN 1 ELSE 0 END) AS TPA,
-               SUM(CASE WHEN s.shot_type='3-pointer' AND s.made=1 THEN 1 ELSE 0 END) AS TPM,
+               SUM(CASE WHEN s.shot_type='3' THEN 1 ELSE 0 END) AS TPA,
+               SUM(CASE WHEN s.shot_type='3' AND s.made=1 THEN 1 ELSE 0 END) AS TPM,
                ROUND(
-                 SUM(CASE WHEN s.shot_type='3-pointer' AND s.made=1 THEN 1 ELSE 0 END)
-                 / NULLIF(SUM(CASE WHEN s.shot_type='3-pointer' THEN 1 ELSE 0 END),0)
+                 SUM(CASE WHEN s.shot_type='3' AND s.made=1 THEN 1 ELSE 0 END)
+                 / NULLIF(SUM(CASE WHEN s.shot_type='3' THEN 1 ELSE 0 END),0)
                  *100,1) AS THREE_PCT,
-               SUM(CASE 
-                    WHEN s.shot_type='2-pointer' AND s.made=1 THEN 2
-                    WHEN s.shot_type='3-pointer' AND s.made=1 THEN 3
+               SUM(CASE
+                    WHEN s.shot_type='2' AND s.made=1 THEN 2
+                    WHEN s.shot_type='3' AND s.made=1 THEN 3
                     ELSE 0 END) AS total_pts,
                COUNT(DISTINCT s.game_id) AS games_played
         FROM Shot s
+        JOIN Player p ON s.player_id = p.player_id
         JOIN Game g ON g.game_id = s.game_id
-        WHERE s.player_name = %s
+        WHERE p.player_name = %s
         GROUP BY g.season_year, s.team_name
         ORDER BY g.season_year
     """, (player_name,))
@@ -206,21 +210,10 @@ def player_detail(player_name):
     if not career:
         abort(404)
 
+    # Career totals — use the view
     totals = query("""
-        SELECT COUNT(*) AS FGA,
-               SUM(made) AS FGM,
-               ROUND(SUM(made)/COUNT(*)*100,1) AS FG_PCT,
-               SUM(CASE WHEN shot_type='3-pointer' THEN 1 ELSE 0 END) AS TPA,
-               ROUND(
-                 SUM(CASE WHEN shot_type='3-pointer' AND made=1 THEN 1 ELSE 0 END)
-                 / NULLIF(SUM(CASE WHEN shot_type='3-pointer' THEN 1 ELSE 0 END),0)
-                 *100,1) AS THREE_PCT,
-               SUM(CASE 
-                    WHEN shot_type='2-pointer' AND made=1 THEN 2
-                    WHEN shot_type='3-pointer' AND made=1 THEN 3
-                    ELSE 0 END) AS total_pts,
-               COUNT(DISTINCT game_id) AS games_played
-        FROM Shot
+        SELECT total_pts, FGA, FGM, FG_PCT, TPA, TPM, THREE_PCT, games_played
+        FROM player_career_stats
         WHERE player_name = %s
     """, (player_name,), one=True)
 
@@ -237,22 +230,23 @@ def player_detail(player_name):
 
 @app.route("/api/shots/<path:player_name>")
 def api_shots(player_name):
-
+    # Raw Shot query needed — coordinates aren't in any view
     year = request.args.get("year", "").strip()
 
     if year:
         rows = query("""
             SELECT s.shotX, s.shotY, s.made, s.shot_type, s.distance
             FROM Shot s
+            JOIN Player p ON s.player_id = p.player_id
             JOIN Game g ON g.game_id = s.game_id
-            WHERE s.player_name = %s AND g.season_year = %s
+            WHERE p.player_name = %s AND g.season_year = %s
         """, (player_name, int(year)))
-
     else:
         rows = query("""
-            SELECT shotX, shotY, made, shot_type, distance
-            FROM Shot
-            WHERE player_name = %s
+            SELECT s.shotX, s.shotY, s.made, s.shot_type, s.distance
+            FROM Shot s
+            JOIN Player p ON s.player_id = p.player_id
+            WHERE p.player_name = %s
         """, (player_name,))
 
     return jsonify(rows)
@@ -262,7 +256,6 @@ def api_shots(player_name):
 
 @app.route("/compare")
 def compare():
-
     p1_name = request.args.get("p1", "").strip()
     p2_name = request.args.get("p2", "").strip()
 
@@ -271,26 +264,17 @@ def compare():
     if p1_name and p2_name:
 
         def get_totals(name):
+            # Use the view — much faster than aggregating Shot
             return query("""
-                SELECT COUNT(*) AS FGA,
-                       SUM(made) AS FGM,
-                       ROUND(SUM(made)/COUNT(*)*100,1) AS FG_PCT,
-                       SUM(CASE WHEN shot_type='3-pointer' THEN 1 ELSE 0 END) AS TPA,
-                       ROUND(SUM(CASE WHEN shot_type='3-pointer' AND made=1 THEN 1 ELSE 0 END)
-                             /NULLIF(SUM(CASE WHEN shot_type='3-pointer' THEN 1 ELSE 0 END),0)*100,1) AS THREE_PCT,
-                       SUM(CASE 
-                            WHEN shot_type='2-pointer' AND made=1 THEN 2
-                            WHEN shot_type='3-pointer' AND made=1 THEN 3
-                            ELSE 0 END) AS total_pts,
-                       COUNT(DISTINCT game_id) AS games_played
-                FROM Shot
+                SELECT total_pts, FGA, FGM, FG_PCT, TPA, TPM, THREE_PCT, games_played
+                FROM player_career_stats
                 WHERE player_name = %s
             """, (name,), one=True)
 
         p1_stats = get_totals(p1_name)
         p2_stats = get_totals(p2_name)
 
-    all_players = query("SELECT DISTINCT player_name FROM Shot ORDER BY player_name LIMIT 10000")
+    all_players = query("SELECT DISTINCT player_name FROM Player ORDER BY player_name LIMIT 10000")
 
     return render_template("compare.html",
                            p1_name=p1_name,
@@ -300,7 +284,112 @@ def compare():
                            all_players=all_players)
 
 
-# ── run ───────────────────────────────────────────
+# ── Teams ─────────────────────────────────────────
+
+@app.route("/teams")
+def teams():
+    # Use the view
+    rows = query("SELECT * FROM team_career_stats ORDER BY total_pts DESC")
+    return render_template("teams.html", teams=rows)
+
+
+# ── Team Detail ────────────────────────────────────
+
+@app.route("/team/<abbrev>")
+def team_detail(abbrev):
+    year = request.args.get("year", "").strip()
+
+    # Season-by-season breakdown — needs raw query (view has no season column)
+    seasons = query("""
+        SELECT g.season_year,
+               COUNT(*) AS FGA,
+               SUM(s.made) AS FGM,
+               ROUND(SUM(s.made)/COUNT(*)*100,1) AS FG_PCT,
+               SUM(CASE
+                    WHEN s.shot_type='2' AND s.made=1 THEN 2
+                    WHEN s.shot_type='3' AND s.made=1 THEN 3
+                    ELSE 0 END) AS total_pts,
+               COUNT(DISTINCT s.game_id) AS games
+        FROM Shot s
+        JOIN Game g ON s.game_id = g.game_id
+        WHERE s.team_name = %s
+        GROUP BY g.season_year
+        ORDER BY g.season_year DESC
+    """, (abbrev.upper(),))
+
+    if not seasons:
+        abort(404)
+
+    if year:
+        # Year-filtered top players — needs raw query
+        top_players = query("""
+            SELECT p.player_name,
+                   COUNT(*) AS FGA,
+                   SUM(s.made) AS FGM,
+                   ROUND(SUM(s.made)/COUNT(*)*100,1) AS FG_PCT,
+                   SUM(CASE
+                        WHEN s.shot_type='2' AND s.made=1 THEN 2
+                        WHEN s.shot_type='3' AND s.made=1 THEN 3
+                        ELSE 0 END) AS total_pts,
+                   COUNT(DISTINCT s.game_id) AS games_played
+            FROM Shot s
+            JOIN Player p ON s.player_id = p.player_id
+            JOIN Game g ON s.game_id = g.game_id
+            WHERE s.team_name = %s AND g.season_year = %s
+            GROUP BY p.player_name
+            HAVING games_played >= 5
+            ORDER BY total_pts DESC
+            LIMIT 15
+        """, (abbrev.upper(), int(year)))
+    else:
+        # Career top players for this team — use the view
+        top_players = query("""
+            SELECT player_name, total_pts, FGA, FGM, FG_PCT, games_played
+            FROM player_career_stats
+            WHERE team_name = %s AND games_played >= 5
+            ORDER BY total_pts DESC
+            LIMIT 15
+        """, (abbrev.upper(),))
+
+    years = query("""
+        SELECT DISTINCT g.season_year
+        FROM Game g
+        JOIN Shot s ON s.game_id = g.game_id
+        WHERE s.team_name = %s AND g.season_year IS NOT NULL
+        ORDER BY g.season_year DESC
+    """, (abbrev.upper(),))
+
+    return render_template("team.html",
+                           abbrev=abbrev.upper(),
+                           seasons=seasons,
+                           top_players=top_players,
+                           years=years,
+                           selected_year=year)
+
+
+# ── Leaderboards ───────────────────────────────────
+
+@app.route("/leaderboards")
+def leaderboards():
+    # We use 'AS val' to make every query return a column with the same name[cite: 1]
+    top_pts = query("SELECT player_name, total_pts AS val FROM player_career_stats ORDER BY total_pts DESC LIMIT 10")
+    top_fg = query("SELECT player_name, FG_PCT AS val FROM player_career_stats WHERE FGA >= 500 ORDER BY FG_PCT DESC LIMIT 10")
+    top_3p = query("SELECT player_name, THREE_PCT AS val FROM player_career_stats WHERE TPA >= 200 ORDER BY THREE_PCT DESC LIMIT 10")
+    top_volume = query("SELECT player_name, FGA AS val FROM player_career_stats ORDER BY FGA DESC LIMIT 10")
+
+    boards = {
+        "Total Points": top_pts,
+        "Field Goal %": top_fg,
+        "Three Point %": top_3p,
+        "Field Goal Attempts": top_volume
+    }
+
+    context = {
+        "boards": boards,
+        "active_page": "leaderboards"
+    }
+
+    return render_template("leaderboards.html", **context)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
