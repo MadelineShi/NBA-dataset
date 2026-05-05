@@ -24,7 +24,7 @@ app = Flask(__name__)
 DB_CONFIG = {
     "host":     "localhost",
     "user":     "root",
-    "password": "gha$bbhisA23rtyuiop0999",
+    "password": "",
     "database": "hoopbase2",
 }
 
